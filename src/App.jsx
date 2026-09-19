@@ -77,6 +77,10 @@ function SubBtn({ active, onClick, icon: Ico, children }) {
 }
 
 export default function App() {
+  const [usuario, setUsuario] = useState(() => leerSesion());
+  const [gate, setGate] = useState('landing');
+  const [authModo, setAuthModo] = useState('entrar');
+
   const {
     listos,
     contactos,
@@ -102,7 +106,7 @@ export default function App() {
     fusionar,
     exportar,
     importar,
-  } = useContactos();
+  } = useContactos(usuario?.email);
 
   const [editando, setEditando] = useState(null);
   const [pendienteBorrar, setPendienteBorrar] = useState(null);
@@ -119,9 +123,6 @@ export default function App() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const fileRef = useRef(null);
   const grupoInputRef = useRef(null);
-  const [usuario, setUsuario] = useState(() => leerSesion());
-  const [gate, setGate] = useState('landing');
-  const [authModo, setAuthModo] = useState('entrar');
 
   useEffect(() => {
     if (!error) return undefined;

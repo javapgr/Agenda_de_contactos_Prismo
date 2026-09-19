@@ -121,7 +121,9 @@ export default function PantallaSesion({
         </form>
 
         <p className="text-center text-[11px] text-slate-500">
-          Sesion local en este navegador.
+          Sesion local en este navegador. Demo con datos:{' '}
+          <span className="text-slate-400">danilo@…</span>. Otros usuarios
+          empiezan vacios.
         </p>
       </div>
     </div>

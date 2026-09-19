@@ -72,7 +72,8 @@ La sesion (entrar / crear usuario) y la agenda viven en el **navegador de cada v
 
 ## Decisiones
 
-- Persistencia en `localStorage` (clave `agenda_contactos_v4`); no hay servidor.
+- Persistencia en `localStorage` por usuario (`agenda_prismo_v5_<email>`); no hay servidor.
+- Usuario demo `danilo@…` recibe contactos de ejemplo; cuentas nuevas empiezan vacias.
 - Sesion de usuario local (`prismo_sesion_v1` / `prismo_usuarios_v1`).
 - Grupos normalizados con FK (`grupo_id`); filtros y orden en SQL.
 - Sugerencias de mensaje: LLM opcional (`VITE_LLM_URL` + `VITE_LLM_KEY`); si no hay clave, respaldo local.

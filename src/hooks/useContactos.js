@@ -1,8 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { iniciarDB, exportarBytes, importarBytes } from '../db/database.js';
+import {
+  iniciarDB,
+  exportarBytes,
+  importarBytes,
+  cerrarDB,
+} from '../db/database.js';
 import * as repo from '../db/contactosRepo.js';
 
-export function useContactos() {
+export function useContactos(emailUsuario) {
   const [listos, setListos] = useState(false);
   const [contactos, setContactos] = useState([]);
   const [grupos, setGrupos] = useState([]);
@@ -21,8 +26,23 @@ export function useContactos() {
   }, [texto, grupoId, orden]);
 
   useEffect(() => {
-    iniciarDB().then(() => setListos(true));
-  }, []);
+    let cancelado = false;
+    if (!emailUsuario) {
+      cerrarDB();
+      setListos(false);
+      setContactos([]);
+      setGrupos([]);
+      setPlantillas([]);
+      return undefined;
+    }
+    setListos(false);
+    iniciarDB({ email: emailUsuario }).then(() => {
+      if (!cancelado) setListos(true);
+    });
+    return () => {
+      cancelado = true;
+    };
+  }, [emailUsuario]);
 
   useEffect(() => {
     if (listos) refrescar();

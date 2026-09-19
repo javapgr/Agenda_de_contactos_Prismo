@@ -2,9 +2,10 @@ import initSqlJs from 'sql.js';
 import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 import { ESQUEMA, migrar, sembrarDemo } from './esquema.js';
 
-const CLAVE = 'agenda_contactos_v4';
+const CLAVE_LEGACY = 'agenda_contactos_v4';
 let SQL = null;
 let db = null;
+let claveActual = null;
 
 const aBase64 = (bytes) => {
   let bin = '';
@@ -15,6 +16,21 @@ const aBase64 = (bytes) => {
   return btoa(bin);
 };
 const aBytes = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+
+export function claveAgenda(email) {
+  const e = String(email || '')
+    .trim()
+    .toLowerCase();
+  if (!e) throw new Error('Email de usuario requerido para la agenda.');
+  return `agenda_prismo_v5_${e}`;
+}
+
+export function esUsuarioDemo(email) {
+  return String(email || '')
+    .trim()
+    .toLowerCase()
+    .startsWith('danilo@');
+}
 
 function preparar(instancia) {
   instancia.run('PRAGMA foreign_keys = ON');
@@ -28,22 +44,50 @@ async function cargarSQL(locate) {
   return SQL;
 }
 
-export async function iniciarDB() {
-  await cargarSQL(true);
-  let guardada = null;
+function leerGuardada(clave) {
   try {
-    guardada = localStorage.getItem(CLAVE);
+    return localStorage.getItem(clave);
   } catch (e) {
     console.warn('Sin acceso a localStorage', e);
+    return null;
   }
+}
+
+export async function iniciarDB({ email } = {}) {
+  await cargarSQL(true);
+  if (db) {
+    try {
+      db.close();
+    } catch (_) {
+      /* ignore */
+    }
+    db = null;
+  }
+
+  claveActual = claveAgenda(email);
+  let guardada = leerGuardada(claveActual);
+
+  if (!guardada && esUsuarioDemo(email)) {
+    const legacy = leerGuardada(CLAVE_LEGACY);
+    if (legacy) {
+      guardada = legacy;
+      try {
+        localStorage.setItem(claveActual, legacy);
+      } catch (_) {
+        /* ignore */
+      }
+    }
+  }
+
   db = preparar(guardada ? new SQL.Database(aBytes(guardada)) : new SQL.Database());
-  sembrarDemo(db);
+  if (esUsuarioDemo(email)) sembrarDemo(db);
   persistir();
   return db;
 }
 
 export async function iniciarDBMemoria() {
   await cargarSQL(false);
+  claveActual = null;
   db = preparar(new SQL.Database());
   return db;
 }
@@ -54,10 +98,10 @@ export function obtenerDB() {
 }
 
 export function persistir() {
-  if (!db) return;
+  if (!db || !claveActual) return;
   try {
     if (typeof localStorage === 'undefined') return;
-    localStorage.setItem(CLAVE, aBase64(db.export()));
+    localStorage.setItem(claveActual, aBase64(db.export()));
   } catch (e) {
     console.warn('No se pudo guardar la base', e);
   }
@@ -77,7 +121,12 @@ export function importarBytes(bytes) {
 
 export function cerrarDB() {
   if (db) {
-    db.close();
+    try {
+      db.close();
+    } catch (_) {
+      /* ignore */
+    }
     db = null;
   }
+  claveActual = null;
 }
