@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "DM Sans", system-ui, sans-serif;
+  overflow-x: hidden;
+  background: #1c1e21;
+}
+
+@keyframes prismo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes prismo-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes prismo-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.prismo-rise {
+  animation: prismo-rise 0.7s ease-out both;
+}
+
+.prismo-rise-delay {
+  animation: prismo-rise 0.7s ease-out 0.15s both;
+}
+
+.prismo-rise-delay-2 {
+  animation: prismo-rise 0.7s ease-out 0.3s both;
+}
+
+.prismo-fade {
+  animation: prismo-fade 1s ease-out 0.2s both;
+}
+
+.prismo-float {
+  animation: prismo-float 5s ease-in-out infinite;
+}
+
+:focus-visible {
+  outline: 2px solid #0066f5;
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
