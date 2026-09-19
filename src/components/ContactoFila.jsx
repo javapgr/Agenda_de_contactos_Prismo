@@ -16,7 +16,7 @@ export default function ContactoFila({
 
   return (
     <div className="border-b border-slate-200 hover:bg-[#f8f9fa]">
-      <div className="grid grid-cols-[minmax(0,1fr)_8rem_6.5rem_auto] items-center gap-2 px-1 py-3 text-[13px]">
+      <div className="flex flex-col gap-2 px-1 py-3 text-[13px] md:grid md:grid-cols-[minmax(0,1fr)_8rem_6.5rem_auto] md:items-center md:gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"
@@ -36,9 +36,13 @@ export default function ContactoFila({
             {c.nombre} {c.apellido}
           </button>
         </div>
-        <span className="truncate text-slate-500">{c.telefono}</span>
-        <span className="truncate text-slate-500">{c.grupo}</span>
-        <div className="flex shrink-0 flex-wrap justify-end gap-1">
+        <p className="pl-6 text-xs text-slate-500 md:hidden">
+          {c.telefono}
+          {c.grupo ? ` · ${c.grupo}` : ''}
+        </p>
+        <span className="hidden truncate text-slate-500 md:block">{c.telefono}</span>
+        <span className="hidden truncate text-slate-500 md:block">{c.grupo}</span>
+        <div className="flex flex-wrap gap-1 pl-6 md:justify-end md:pl-0">
           <button
             type="button"
             onClick={() => onWhatsApp?.(c)}

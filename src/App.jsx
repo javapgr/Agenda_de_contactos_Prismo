@@ -33,6 +33,7 @@ import {
   IconUpload,
   IconStats,
   IconTrash,
+  IconMenu,
 } from './components/Icons.jsx';
 
 const ORDENES = [
@@ -115,6 +116,7 @@ export default function App() {
   const [vista, setVista] = useState('proyecto');
   const [filtroSec, setFiltroSec] = useState('todos');
   const [gruposAbiertos, setGruposAbiertos] = useState(true);
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const fileRef = useRef(null);
   const grupoInputRef = useRef(null);
   const [usuario, setUsuario] = useState(() => leerSesion());
@@ -132,6 +134,10 @@ export default function App() {
     const t = setTimeout(() => setAvisoGrupo(''), 3000);
     return () => clearTimeout(t);
   }, [avisoGrupo]);
+
+  useEffect(() => {
+    setMenuAbierto(false);
+  }, [vista, filtroSec, grupoId]);
 
   const salir = () => {
     cerrarSesion();
@@ -285,13 +291,22 @@ export default function App() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-white font-sans text-slate-800">
-      <header className="flex h-12 shrink-0 items-center gap-4 bg-lucid-dark px-3 text-white">
-        <div className="hidden w-[200px] items-center gap-2 sm:flex">
+      <header className="flex h-12 shrink-0 items-center gap-2 bg-lucid-dark px-2 text-white sm:gap-4 sm:px-3">
+        <button
+          type="button"
+          className="shrink-0 rounded-md p-2 text-white hover:bg-white/10 md:hidden"
+          aria-label={menuAbierto ? 'Cerrar menu' : 'Abrir menu'}
+          aria-expanded={menuAbierto}
+          onClick={() => setMenuAbierto((v) => !v)}
+        >
+          <IconMenu className="h-5 w-5" />
+        </button>
+        <div className="hidden w-[200px] items-center gap-2 md:flex">
           <span className="font-display text-[17px] font-semibold tracking-tight">
             {MARCA.nombre}
           </span>
         </div>
-        <div className="relative mx-auto w-full max-w-xl">
+        <div className="relative min-w-0 flex-1 mx-auto max-w-xl">
           <IconSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0a6]" />
           <label className="sr-only" htmlFor="buscar">
             Buscar
@@ -303,22 +318,22 @@ export default function App() {
               setTexto(e.target.value);
               irContactos(filtroSec === 'grupo' ? 'grupo' : 'todos', grupoId);
             }}
-            placeholder="Busca por nombre, apellido o telefono"
+            placeholder="Buscar contacto"
             className="w-full rounded-md border-0 bg-lucid-search py-1.5 pl-9 pr-3 text-[13px] text-white placeholder:text-[#9aa0a6] focus:outline-none focus-visible:ring-2 focus-visible:ring-lucid-blue"
           />
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={irNuevo}
-            className="rounded-md bg-lucid-blue px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110 sm:hidden"
+            className="rounded-md bg-lucid-blue px-2.5 py-1.5 text-xs font-semibold text-white hover:brightness-110 md:hidden"
           >
             + Nuevo
           </button>
-          <span className="hidden text-xs text-[#9aa0a6] md:inline" aria-live="polite">
+          <span className="hidden text-xs text-[#9aa0a6] lg:inline" aria-live="polite">
             {lista.length} contactos
           </span>
-          <span className="hidden max-w-[9rem] truncate text-xs text-[#c5c9ce] sm:inline">
+          <span className="hidden max-w-[9rem] truncate text-xs text-[#c5c9ce] md:inline">
             {usuario.nombre}
           </span>
           <button
@@ -334,8 +349,21 @@ export default function App() {
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1">
-        <aside className="flex w-[200px] shrink-0 flex-col bg-lucid-dark text-white">
+      <div className="relative flex min-h-0 flex-1">
+        {menuAbierto && (
+          <button
+            type="button"
+            aria-label="Cerrar menu"
+            className="fixed inset-0 z-40 bg-black/40 md:hidden"
+            onClick={() => setMenuAbierto(false)}
+          />
+        )}
+
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 flex w-[220px] flex-col bg-lucid-dark text-white transition-transform duration-200 md:static md:z-auto md:w-[200px] md:translate-x-0 ${
+            menuAbierto ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
           <div className="flex items-center gap-2.5 px-3 py-3">
             <div className="grid h-8 w-8 place-items-center rounded-full bg-lucid-blue text-xs font-semibold">
               {inicialesUser}
@@ -408,10 +436,49 @@ export default function App() {
             >
               Respaldo
             </NavBtn>
+            <div className="space-y-0.5 border-t border-[#2d3136] pt-2 md:hidden">
+              <p className="px-3 py-1 text-[10px] uppercase tracking-wide text-[#9aa0a6]">
+                Filtros
+              </p>
+              <NavBtn
+                active={vista === 'contactos' && filtroSec === 'recientes'}
+                onClick={() => irContactos('recientes')}
+                icon={IconClock}
+              >
+                Recientes
+              </NavBtn>
+              <NavBtn
+                active={vista === 'contactos' && filtroSec === 'favoritos'}
+                onClick={() => irContactos('favoritos')}
+                icon={IconStar}
+              >
+                Favoritos
+              </NavBtn>
+              {grupos.map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  onClick={() => irContactos('grupo', g.id)}
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-[13px] ${
+                    vista === 'contactos' &&
+                    filtroSec === 'grupo' &&
+                    grupoId === g.id
+                      ? 'bg-lucid-dark2 text-white'
+                      : 'text-[#c5c9ce] hover:bg-lucid-dark2 hover:text-white'
+                  }`}
+                >
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: g.color }}
+                  />
+                  <span className="truncate">{g.nombre}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </aside>
 
-        <aside className="hidden w-[220px] shrink-0 flex-col border-r border-lucid-line bg-lucid-grey sm:flex">
+        <aside className="hidden w-[220px] shrink-0 flex-col border-r border-lucid-line bg-lucid-grey lg:flex">
           <nav className="flex-1 space-y-0.5 p-2 pt-3" aria-label="Filtros">
             <SubBtn
               active={vista === 'proyecto'}
@@ -548,8 +615,8 @@ export default function App() {
 
         <main className="flex min-w-0 flex-1 flex-col bg-white">
           {vista !== 'proyecto' && (
-            <div className="flex items-center justify-between border-b border-lucid-line px-6 py-4">
-              <h1 className="font-display text-[22px] font-semibold tracking-tight text-slate-900">
+            <div className="flex items-center justify-between border-b border-lucid-line px-4 py-3 sm:px-6 sm:py-4">
+              <h1 className="font-display text-lg font-semibold tracking-tight text-slate-900 sm:text-[22px]">
                 {titulo}
               </h1>
               {vista === 'contactos' && (
@@ -569,7 +636,7 @@ export default function App() {
             </div>
           )}
 
-          <div className="flex-1 space-y-3 overflow-y-auto p-6">
+          <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
             {vista === 'proyecto' && (
               <PanelProyecto
                 key={statsKey}
@@ -639,13 +706,13 @@ export default function App() {
             )}
 
             {vista === 'contactos' && (
-              <div className="-mx-6">
+              <div className="-mx-4 sm:-mx-6">
                 {filtroSec === 'todos' && !texto && (
-                  <p className="mb-3 px-6 text-xs text-slate-500">
+                  <p className="mb-3 px-4 text-xs text-slate-500 sm:px-6">
                     Usa WhatsApp, Compartir o .vcf en cada fila. Estrella = favorito.
                   </p>
                 )}
-                <div className="grid grid-cols-[minmax(0,1fr)_8rem_6.5rem_auto] gap-2 border-y border-slate-300 bg-[#f3f4f6] px-7 py-2.5 text-[12px] font-semibold text-slate-600">
+                <div className="hidden gap-2 border-y border-slate-300 bg-[#f3f4f6] px-7 py-2.5 text-[12px] font-semibold text-slate-600 md:grid md:grid-cols-[minmax(0,1fr)_8rem_6.5rem_auto]">
                   <span>Nombre</span>
                   <span>Telefono</span>
                   <span>Grupo</span>
@@ -653,7 +720,7 @@ export default function App() {
                 </div>
 
                 {lista.length === 0 ? (
-                  <div className="px-6 py-16 text-center">
+                  <div className="px-4 py-16 text-center sm:px-6">
                     <p className="text-[13px] text-slate-400">{vacioMsg}</p>
                     {!texto && filtroSec === 'todos' && (
                       <button
@@ -675,7 +742,7 @@ export default function App() {
                     )}
                   </div>
                 ) : (
-                  <div className="px-6">
+                  <div className="px-4 sm:px-6">
                     {lista.map((c) => (
                       <ContactoFila
                         key={c.id}

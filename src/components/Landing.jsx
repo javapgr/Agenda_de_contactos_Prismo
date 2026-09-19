@@ -45,7 +45,7 @@ export default function Landing({ onEmpezar, onEntrar }) {
           <p className="prismo-rise text-[11px] font-medium uppercase tracking-wider text-slate-400">
             Proyecto estudiantil · SENATI
           </p>
-          <p className="prismo-rise mt-3 font-display text-5xl font-semibold tracking-tight text-white sm:text-6xl">
+          <p className="prismo-rise mt-3 font-display text-4xl font-semibold tracking-tight text-white sm:text-6xl">
             {MARCA.nombre}
           </p>
           <h1 className="prismo-rise-delay mt-4 max-w-xl text-xl font-medium leading-snug text-slate-200 sm:text-2xl">
