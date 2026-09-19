@@ -81,7 +81,17 @@ La sesion (entrar / crear usuario) y la agenda viven en el **navegador de cada v
 
 ## Capturas
 
-Agrega aqui 2–3 capturas al entregar (lista de contactos, WhatsApp/plantilla, estadisticas).
+Lista de contactos:
+
+![Lista de contactos](docs/contactos.png)
+
+WhatsApp con plantilla y sugerencias:
+
+![WhatsApp plantilla](docs/whatsapp.png)
+
+Plantillas editables:
+
+![Plantillas](docs/plantillas.png)
 
 ## Video de entrega
 
